@@ -13,7 +13,12 @@ const API_PROVIDERS: ApiProvider[] = ['claude', 'gemini'];
 const DEFAULT_MODELS: Record<ApiProvider, string> = {
   'seoa-worker': 'seoa',
   claude: 'claude-sonnet-4-6',
-  gemini: 'gemini-2.0-flash',
+  gemini: 'gemini-3-flash-preview',
+};
+
+const MODEL_OPTIONS: Record<string, string[]> = {
+  claude: ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001', 'claude-opus-4-5-20251101'],
+  gemini: ['gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.5-pro'],
 };
 
 const ACCENT_COLORS = [
@@ -307,13 +312,15 @@ export default function CharacterEditor({
           {form.api_provider !== 'seoa-worker' && (
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1.5">모델</label>
-              <input
-                type="text"
+              <select
                 value={form.model}
                 onChange={(e) => set('model', e.target.value)}
-                placeholder="claude-sonnet-4-6"
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-gray-400 transition-colors font-mono"
-              />
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-gray-400 transition-colors bg-white"
+              >
+                {(MODEL_OPTIONS[form.api_provider] ?? []).map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
             </div>
           )}
 
