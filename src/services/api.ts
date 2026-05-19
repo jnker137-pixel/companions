@@ -27,8 +27,9 @@ async function sendToWorker(
   };
 
   // Pass recent history for non-seoa characters (seoa handles its own history via Supabase)
-  if (characterId !== 'seoa' && history && history.length > 0) {
-    body.history = history.slice(-20).map((m) => ({
+  // slice(0, -1): exclude the latest user message — Worker appends it separately
+  if (characterId !== 'seoa' && history && history.length > 1) {
+    body.history = history.slice(0, -1).slice(-20).map((m) => ({
       role: m.role,
       content: m.content,
     }));
