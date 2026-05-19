@@ -162,10 +162,11 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile floating add button */}
+      {/* Mobile floating add button — safe area 대응 */}
       <button
         onClick={handleOpenAdd}
-        className="fixed bottom-6 right-5 z-30 w-14 h-14 rounded-full bg-gray-900 text-white shadow-xl flex items-center justify-center text-2xl md:hidden hover:bg-gray-700 transition-colors"
+        className="fixed right-5 z-30 w-14 h-14 rounded-full bg-gray-900 text-white shadow-xl flex items-center justify-center text-2xl md:hidden hover:bg-gray-700 transition-colors"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 5rem)' }}
         title="캐릭터 추가"
       >
         +
