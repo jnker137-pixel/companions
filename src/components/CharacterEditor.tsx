@@ -8,7 +8,7 @@ interface CharacterEditorProps {
   onClose: () => void;
 }
 
-const API_PROVIDERS: ApiProvider[] = ['seoa-worker', 'claude', 'gemini'];
+const API_PROVIDERS: ApiProvider[] = ['claude', 'gemini'];
 
 const DEFAULT_MODELS: Record<ApiProvider, string> = {
   'seoa-worker': 'seoa',
@@ -294,15 +294,13 @@ export default function CharacterEditor({
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  {p === 'seoa-worker' ? '서아 Worker' : p === 'claude' ? 'Claude' : 'Gemini'}
+                  {p === 'claude' ? 'Claude' : 'Gemini'}
                 </button>
               ))}
             </div>
-            {form.api_provider === 'seoa-worker' && (
-              <p className="text-xs text-amber-600 mt-1.5">
-                서아 Worker는 서아 전용 파이프라인(가계부·스윙 도구 포함)을 사용해요.
-              </p>
-            )}
+            <p className="text-xs text-gray-400 mt-1.5">
+              Claude · Gemini 모두 Worker를 통해 실행돼요 — 대화 기억 + 웹 검색 자동 포함.
+            </p>
           </div>
 
           {/* Model */}
