@@ -264,19 +264,71 @@ export default function CharacterEditor({
             </div>
           )}
 
-          {/* Avatar URL */}
+          {/* Avatar image */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1.5">
-              아바타 URL{' '}
-              <span className="text-gray-400 font-normal">(선택 · 빈칸이면 이니셜 표시)</span>
-            </label>
-            <input
-              type="url"
-              value={form.avatar_url ?? ''}
-              onChange={(e) => set('avatar_url', e.target.value || null)}
-              placeholder="https://..."
-              className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:border-gray-400 transition-colors"
-            />
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">아바타 이미지</label>
+            <div className="flex items-center gap-3">
+              {/* Preview */}
+              <div
+                className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xl overflow-hidden"
+                style={{ backgroundColor: form.color }}
+              >
+                {form.avatar_url ? (
+                  <img src={form.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{form.name.slice(0, 1) || '?'}</span>
+                )}
+              </div>
+              <div className="flex-1 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const img = new Image();
+                        img.onload = () => {
+                          const MAX = 512;
+                          const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+                          const canvas = document.createElement('canvas');
+                          canvas.width = img.width * scale;
+                          canvas.height = img.height * scale;
+                          canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+                          set('avatar_url', canvas.toDataURL('image/jpeg', 0.85));
+                        };
+                        img.src = ev.target?.result as string;
+                      };
+                      reader.readAsDataURL(file);
+                    };
+                    input.click();
+                  }}
+                  className="w-full py-2 px-3 rounded-xl border border-gray-200 hover:border-gray-400 text-xs text-gray-600 hover:text-gray-900 transition-colors text-left"
+                >
+                  📁 이미지 파일 선택
+                </button>
+                <input
+                  type="url"
+                  value={form.avatar_url?.startsWith('data:') ? '' : (form.avatar_url ?? '')}
+                  onChange={(e) => set('avatar_url', e.target.value || null)}
+                  placeholder="또는 이미지 URL 입력 (https://...)"
+                  className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-gray-400 transition-colors"
+                />
+                {form.avatar_url && (
+                  <button
+                    type="button"
+                    onClick={() => set('avatar_url', null)}
+                    className="text-xs text-red-400 hover:text-red-600"
+                  >
+                    이미지 제거
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Color picker */}

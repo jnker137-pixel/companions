@@ -106,69 +106,57 @@ export default function ChatView({
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Banner */}
-      <header
-        className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-white shadow-sm"
-        style={{ borderTopColor: character.color, borderTopWidth: 3 }}
-      >
-        <div className="flex items-center gap-3">
+      <header className="relative h-40 flex-shrink-0 overflow-hidden">
+        {/* Background: image or color gradient */}
+        {character.avatar_url ? (
+          <img
+            src={character.avatar_url}
+            alt={character.name}
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+        ) : (
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm overflow-hidden flex-shrink-0"
-            style={{ backgroundColor: character.color }}
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(135deg, ${character.color}cc, ${character.color}66)` }}
           >
-            {character.avatar_url ? (
-              <img
-                src={character.avatar_url}
-                alt={character.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              character.name.slice(0, 2)
-            )}
+            <span className="absolute bottom-4 left-5 text-7xl font-black text-white/20 select-none leading-none">
+              {character.name.slice(0, 1)}
+            </span>
           </div>
-          <div>
-            <h2 className="text-base font-bold text-gray-900 leading-tight">{character.name}</h2>
-            <p className="text-xs text-gray-500">
-              {character.api_provider} · {character.model || '기본 모델'}
-            </p>
-          </div>
-        </div>
+        )}
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/70 pointer-events-none" />
+
+        {/* Top actions */}
+        <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/30 backdrop-blur-sm rounded-full px-1.5 py-1">
           <button
             onClick={handleClear}
             title="대화 초기화"
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
           <button
             onClick={() => onEditCharacter(character)}
             title="캐릭터 설정"
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </button>
+        </div>
+
+        {/* Bottom name + provider */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
+          <h2 className="text-xl font-bold text-white drop-shadow-md leading-tight">{character.name}</h2>
+          <p className="text-xs text-white/60 mt-0.5">{character.api_provider} · {character.model || '기본 모델'}</p>
         </div>
       </header>
 

@@ -162,6 +162,15 @@ export default function App() {
         )}
       </main>
 
+      {/* Mobile floating add button */}
+      <button
+        onClick={handleOpenAdd}
+        className="fixed bottom-6 right-5 z-30 w-14 h-14 rounded-full bg-gray-900 text-white shadow-xl flex items-center justify-center text-2xl md:hidden hover:bg-gray-700 transition-colors"
+        title="캐릭터 추가"
+      >
+        +
+      </button>
+
       {/* Character editor modal */}
       {editorOpen && (
         <CharacterEditor
