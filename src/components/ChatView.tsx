@@ -9,6 +9,7 @@ interface ChatViewProps {
   messages: Message[];
   onMessagesChange: (msgs: Message[]) => void;
   onEditCharacter: (char: Character) => void;
+  onAddCharacter: () => void;
 }
 
 function formatTime(ts: string | undefined): string {
@@ -22,6 +23,7 @@ export default function ChatView({
   messages,
   onMessagesChange,
   onEditCharacter,
+  onAddCharacter,
 }: ChatViewProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -159,12 +161,20 @@ export default function ChatView({
             <h2 className="text-xl font-bold text-white drop-shadow-md leading-tight">{character.name}</h2>
             <p className="text-xs text-white/60 mt-0.5">{character.api_provider} · {character.model || '기본 모델'}</p>
           </div>
-          <button
-            onClick={() => onEditCharacter(character)}
-            className="mb-0.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white/80 text-xs hover:bg-white/30 transition-colors"
-          >
-            설정
-          </button>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <button
+              onClick={onAddCharacter}
+              className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white/80 text-xs hover:bg-white/30 transition-colors"
+            >
+              추가
+            </button>
+            <button
+              onClick={() => onEditCharacter(character)}
+              className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white/80 text-xs hover:bg-white/30 transition-colors"
+            >
+              설정
+            </button>
+          </div>
         </div>
       </header>
 
