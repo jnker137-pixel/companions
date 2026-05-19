@@ -98,23 +98,78 @@ export default function CharacterEditor({
     }
   };
 
+  // PNG 파일에서 "chara" tEXt 청크 추출 (SillyTavern/PocketRisu 형식)
+  function extractCharaFromPng(buffer: ArrayBuffer): string | null {
+    const view = new DataView(buffer);
+    let offset = 8; // PNG signature skip
+    while (offset < buffer.byteLength - 12) {
+      const length = view.getUint32(offset, false);
+      offset += 4;
+      const type = String.fromCharCode(
+        view.getUint8(offset), view.getUint8(offset + 1),
+        view.getUint8(offset + 2), view.getUint8(offset + 3)
+      );
+      offset += 4;
+      if (type === 'tEXt') {
+        let keyEnd = offset;
+        while (keyEnd < offset + length && view.getUint8(keyEnd) !== 0) keyEnd++;
+        const keyword = new TextDecoder().decode(new Uint8Array(buffer, offset, keyEnd - offset));
+        if (keyword === 'chara') {
+          const text = new TextDecoder().decode(new Uint8Array(buffer, keyEnd + 1, length - (keyEnd - offset) - 1));
+          return text;
+        }
+      }
+      offset += length + 4; // data + CRC
+    }
+    return null;
+  }
+
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setImportError(null);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const json = JSON.parse(ev.target?.result as string) as CharacterCardV2;
-        const parsed = parseCharacterCard(json);
-        if (parsed.name) setForm((f) => ({ ...f, ...parsed }));
-        if (parsed.name && !idInput) setIdInput(generateId(parsed.name));
-      } catch {
-        setImportError('JSON 파싱에 실패했어요. 올바른 캐릭터카드 파일인지 확인해주세요.');
-      }
-    };
-    reader.readAsText(file);
-    // Reset file input
+
+    if (file.type === 'image/png' || file.name.endsWith('.png')) {
+      // PNG 캐릭터카드: tEXt 청크에서 JSON 추출 + 이미지 자체를 아바타로
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const buffer = ev.target?.result as ArrayBuffer;
+        const base64Chara = extractCharaFromPng(buffer);
+        if (!base64Chara) {
+          setImportError('이 PNG에는 캐릭터카드 데이터가 없어요.');
+          return;
+        }
+        try {
+          const json = JSON.parse(atob(base64Chara)) as CharacterCardV2;
+          const parsed = parseCharacterCard(json);
+          // PNG 자체를 아바타로
+          const blob = new Blob([buffer], { type: 'image/png' });
+          const imgReader = new FileReader();
+          imgReader.onload = (ie) => {
+            setForm((f) => ({ ...f, ...parsed, avatar_url: ie.target?.result as string }));
+          };
+          imgReader.readAsDataURL(blob);
+          if (parsed.name && !idInput) setIdInput(generateId(parsed.name));
+        } catch {
+          setImportError('캐릭터카드 JSON 파싱에 실패했어요.');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      // JSON 파일
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const json = JSON.parse(ev.target?.result as string) as CharacterCardV2;
+          const parsed = parseCharacterCard(json);
+          if (parsed.name) setForm((f) => ({ ...f, ...parsed }));
+          if (parsed.name && !idInput) setIdInput(generateId(parsed.name));
+        } catch {
+          setImportError('JSON 파싱에 실패했어요. 올바른 캐릭터카드 파일인지 확인해주세요.');
+        }
+      };
+      reader.readAsText(file);
+    }
     e.target.value = '';
   };
 
@@ -160,7 +215,7 @@ export default function CharacterEditor({
             <input
               ref={fileInputRef}
               type="file"
-              accept=".json"
+              accept=".json,.png,image/png"
               onChange={handleImport}
               className="hidden"
             />
@@ -172,7 +227,7 @@ export default function CharacterEditor({
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
-              캐릭터카드 JSON 임포트 (SillyTavern / PocketRisu)
+              캐릭터카드 임포트 — PNG / JSON (SillyTavern · PocketRisu)
             </button>
             {importError && (
               <p className="text-xs text-red-500 mt-1">{importError}</p>

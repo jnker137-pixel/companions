@@ -153,10 +153,18 @@ export default function ChatView({
           </button>
         </div>
 
-        {/* Bottom name + provider */}
-        <div className="absolute bottom-0 left-0 right-0 px-4 pb-3">
-          <h2 className="text-xl font-bold text-white drop-shadow-md leading-tight">{character.name}</h2>
-          <p className="text-xs text-white/60 mt-0.5">{character.api_provider} · {character.model || '기본 모델'}</p>
+        {/* Bottom name + provider + mobile edit button */}
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-white drop-shadow-md leading-tight">{character.name}</h2>
+            <p className="text-xs text-white/60 mt-0.5">{character.api_provider} · {character.model || '기본 모델'}</p>
+          </div>
+          <button
+            onClick={() => onEditCharacter(character)}
+            className="mb-0.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white/80 text-xs hover:bg-white/30 transition-colors"
+          >
+            설정
+          </button>
         </div>
       </header>
 
