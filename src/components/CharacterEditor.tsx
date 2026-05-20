@@ -5,6 +5,7 @@ interface CharacterEditorProps {
   character: Character | null; // null = create new
   onSave: (char: Character) => void;
   onDelete?: (id: string) => void;
+  onClearMessages?: () => void;
   onClose: () => void;
 }
 
@@ -74,6 +75,7 @@ export default function CharacterEditor({
   character,
   onSave,
   onDelete,
+  onClearMessages,
   onClose,
 }: CharacterEditorProps) {
   const isNew = !character;
@@ -193,6 +195,13 @@ export default function CharacterEditor({
     if (!character) return;
     if (!confirm(`"${character.name}" 캐릭터를 삭제할까요? 대화 기록도 함께 삭제됩니다.`)) return;
     onDelete?.(character.id);
+  };
+
+  const handleClearMessages = () => {
+    if (!character) return;
+    if (!confirm(`"${character.name}"와의 대화를 모두 초기화할까요?`)) return;
+    onClearMessages?.();
+    onClose();
   };
 
   return (
@@ -413,14 +422,29 @@ export default function CharacterEditor({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
-          {!isNew && onDelete && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
-            >
-              삭제
-            </button>
+          {!isNew && (
+            <div className="flex gap-1.5">
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  title="캐릭터 삭제"
+                  className="px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  삭제
+                </button>
+              )}
+              {onClearMessages && character?.id !== 'seoa' && (
+                <button
+                  type="button"
+                  onClick={handleClearMessages}
+                  title="대화 내용만 초기화"
+                  className="px-3 py-2 rounded-xl text-sm font-medium text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                >
+                  대화 초기화
+                </button>
+              )}
+            </div>
           )}
           <div className="flex-1" />
           <button

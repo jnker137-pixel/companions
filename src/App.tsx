@@ -142,6 +142,12 @@ export default function App() {
     setEditorOpen(false);
   };
 
+  const handleClearMessages = async (id: string) => {
+    if (id === 'seoa') return;
+    await clearMessages(id).catch(() => {});
+    setMessagesByChar((prev) => ({ ...prev, [id]: [] }));
+  };
+
   const activeCharacter = characters.find((c) => c.id === activeId) ?? null;
   const activeMessages = activeId ? (messagesByChar[activeId] ?? []) : [];
 
@@ -200,6 +206,7 @@ export default function App() {
           activeId={activeId}
           onSelect={handleSelectChar}
           onAddCharacter={handleOpenAdd}
+          onEditCharacter={handleOpenEdit}
           onOpenProfile={() => setProfileOpen(true)}
         />
       </div>
@@ -215,8 +222,6 @@ export default function App() {
             character={activeCharacter}
             messages={activeMessages}
             onMessagesChange={(msgs) => handleMessagesChange(activeCharacter.id, msgs)}
-            onEditCharacter={handleOpenEdit}
-            onAddCharacter={handleOpenAdd}
           />
         ) : (
           <EmptyState onAdd={handleOpenAdd} />
@@ -229,6 +234,7 @@ export default function App() {
           character={editingChar}
           onSave={handleSaveCharacter}
           onDelete={handleDeleteCharacter}
+          onClearMessages={editingChar ? () => handleClearMessages(editingChar.id) : undefined}
           onClose={() => setEditorOpen(false)}
         />
       )}

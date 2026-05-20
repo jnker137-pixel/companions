@@ -5,6 +5,7 @@ interface SidebarProps {
   activeId: string | null;
   onSelect: (id: string) => void;
   onAddCharacter: () => void;
+  onEditCharacter: (char: Character) => void;
   onOpenProfile: () => void;
 }
 
@@ -22,6 +23,7 @@ export default function Sidebar({
   activeId,
   onSelect,
   onAddCharacter,
+  onEditCharacter,
   onOpenProfile,
 }: SidebarProps) {
   return (
@@ -37,47 +39,62 @@ export default function Sidebar({
         {characters.map((char) => {
           const isActive = char.id === activeId;
           return (
-            <button
-              key={char.id}
-              onClick={() => onSelect(char.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all ${
-                isActive
-                  ? 'bg-white/10 text-white'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-              }`}
-            >
-              {/* Avatar */}
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 overflow-hidden"
-                style={{ backgroundColor: char.color }}
+            <div key={char.id} className="group relative">
+              <button
+                onClick={() => onSelect(char.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all pr-10 ${
+                  isActive
+                    ? 'bg-white/10 text-white'
+                    : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                }`}
               >
-                {char.avatar_url ? (
-                  <img
-                    src={char.avatar_url}
-                    alt={char.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                ) : (
-                  <span className="text-white">{getInitials(char.name)}</span>
-                )}
-              </div>
-
-              {/* Name + badge */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium truncate">{char.name}</span>
-                  {char.tools_enabled && (
-                    <span className="text-[10px] bg-purple-500/30 text-purple-300 px-1 py-0.5 rounded">
-                      도구
-                    </span>
+                {/* Avatar */}
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 overflow-hidden"
+                  style={{ backgroundColor: char.color }}
+                >
+                  {char.avatar_url ? (
+                    <img
+                      src={char.avatar_url}
+                      alt={char.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <span className="text-white">{getInitials(char.name)}</span>
                   )}
                 </div>
-                <p className="text-[11px] text-gray-500 truncate">{char.api_provider}</p>
-              </div>
-            </button>
+
+                {/* Name + badge */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-medium truncate">{char.name}</span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 truncate">{char.api_provider}</p>
+                </div>
+              </button>
+
+              {/* 편집 버튼 - hover 시 또는 active 시 표시 */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditCharacter(char);
+                }}
+                title="캐릭터 설정"
+                className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all
+                  ${isActive
+                    ? 'opacity-60 hover:opacity-100 hover:bg-white/10 text-white'
+                    : 'opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:bg-white/10 text-gray-400 hover:text-white'
+                  }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+            </div>
           );
         })}
 
