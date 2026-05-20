@@ -7,6 +7,7 @@ import {
   fetchMessages,
   clearMessages,
 } from './services/supabase';
+import { subscribeToPush } from './services/pushSubscription';
 import Sidebar from './components/Sidebar';
 import ChatView from './components/ChatView';
 import CharacterEditor from './components/CharacterEditor';
@@ -21,16 +22,28 @@ export default function App() {
   const [editingChar, setEditingChar] = useState<Character | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Push 알림 구독
+  useEffect(() => {
+    subscribeToPush('companions-seongmin').catch(() => {});
+  }, []);
+
   // Load characters from Supabase on mount
   useEffect(() => {
     fetchCharacters()
       .then((chars) => {
         setCharacters(chars);
-        const last = localStorage.getItem('companions_last_char');
-        if (last && chars.find((c) => c.id === last)) {
-          setActiveId(last);
-        } else if (chars.length > 0) {
-          setActiveId(chars[0].id);
+        // URL 파라미터 ?character=xxx 우선 처리 (FCM 알림 탭 시)
+        const params = new URLSearchParams(window.location.search);
+        const charParam = params.get('character');
+        if (charParam && chars.find((c) => c.id === charParam)) {
+          setActiveId(charParam);
+        } else {
+          const last = localStorage.getItem('companions_last_char');
+          if (last && chars.find((c) => c.id === last)) {
+            setActiveId(last);
+          } else if (chars.length > 0) {
+            setActiveId(chars[0].id);
+          }
         }
       })
       .catch((e) => console.error('캐릭터 로드 실패:', e))
