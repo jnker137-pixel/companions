@@ -15,16 +15,6 @@ self.addEventListener('push', (e) => {
 
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const target = e.notification.data?.url || APP_URL + '?character=seoa';
-  e.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
-      for (const client of list) {
-        if (client.url.startsWith(APP_URL) && 'focus' in client) {
-          client.navigate(target);
-          return client.focus();
-        }
-      }
-      return clients.openWindow(target);
-    })
-  );
+  const target = (e.notification.data && e.notification.data.url) || APP_URL + '?character=seoa';
+  e.waitUntil(clients.openWindow(target));
 });
