@@ -9,14 +9,15 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }
 
-export async function subscribeToPush(clientId: string): Promise<void> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+export async function subscribeToPush(clientId: string): Promise<string> {
+  if (!('serviceWorker' in navigator)) throw new Error('serviceWorker 미지원');
+  if (!('PushManager' in window)) throw new Error('PushManager 미지원');
 
   const registration = await navigator.serviceWorker.register('/companions/sw-push.js');
   await navigator.serviceWorker.ready;
 
   const permission = await Notification.requestPermission();
-  if (permission !== 'granted') return;
+  if (permission !== 'granted') throw new Error(`알림 권한 거부: ${permission}`);
 
   let subscription = await registration.pushManager.getSubscription();
   if (!subscription) {
@@ -27,13 +28,13 @@ export async function subscribeToPush(clientId: string): Promise<void> {
   }
 
   const sub = subscription.toJSON();
-  await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       apikey: SUPABASE_ANON_KEY,
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      Prefer: 'resolution=merge-duplicates',
+      Prefer: 'return=minimal',
     },
     body: JSON.stringify({
       client_id: clientId,
@@ -42,4 +43,11 @@ export async function subscribeToPush(clientId: string): Promise<void> {
       auth: sub.keys?.auth,
     }),
   });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Supabase 저장 실패 (${res.status}): ${body}`);
+  }
+
+  return subscription.endpoint.slice(0, 40) + '...';
 }

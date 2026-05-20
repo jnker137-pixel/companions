@@ -22,20 +22,29 @@ export default function App() {
   const [editingChar, setEditingChar] = useState<Character | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifStatus, setNotifStatus] = useState<'default' | 'granted' | 'denied'>('default');
+  const [notifError, setNotifError] = useState<string | null>(null);
+  const [notifDone, setNotifDone] = useState(false);
 
-  // 알림 권한 상태 확인
+  // 알림 권한 상태 확인 + 이미 granted면 자동 구독 시도
   useEffect(() => {
-    if ('Notification' in window) {
-      setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
+    if (!('Notification' in window)) return;
+    const perm = Notification.permission as 'default' | 'granted' | 'denied';
+    setNotifStatus(perm);
+    if (perm === 'granted') {
+      subscribeToPush('companions-seongmin')
+        .then(() => setNotifDone(true))
+        .catch((e) => setNotifError(String(e)));
     }
   }, []);
 
   const handleEnableNotifications = async () => {
+    setNotifError(null);
     try {
       await subscribeToPush('companions-seongmin');
       setNotifStatus('granted');
-    } catch {
-      setNotifStatus('denied');
+      setNotifDone(true);
+    } catch (e) {
+      setNotifError(String(e));
     }
   };
 
@@ -136,14 +145,24 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
-      {/* 알림 허용 배너 */}
-      {notifStatus === 'default' && (
+      {/* 알림 배너 */}
+      {notifError && (
+        <div className="flex items-center justify-between px-4 py-2 bg-red-600 text-white text-xs shrink-0">
+          <span className="truncate">⚠️ {notifError}</span>
+          <button onClick={handleEnableNotifications} className="ml-3 px-2 py-1 bg-white text-red-600 rounded font-medium shrink-0">
+            재시도
+          </button>
+        </div>
+      )}
+      {!notifError && notifDone && (
+        <div className="px-4 py-1 bg-green-600 text-white text-xs shrink-0 text-center">
+          ✅ 알림 구독 완료
+        </div>
+      )}
+      {!notifError && !notifDone && notifStatus === 'default' && (
         <div className="flex items-center justify-between px-4 py-2 bg-indigo-600 text-white text-sm shrink-0">
           <span>브리핑 알림을 받으려면 알림을 허용해줘</span>
-          <button
-            onClick={handleEnableNotifications}
-            className="ml-4 px-3 py-1 bg-white text-indigo-600 rounded-lg font-medium text-xs"
-          >
+          <button onClick={handleEnableNotifications} className="ml-4 px-3 py-1 bg-white text-indigo-600 rounded-lg font-medium text-xs">
             알림 허용
           </button>
         </div>
