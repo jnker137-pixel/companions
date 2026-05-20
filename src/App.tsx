@@ -21,11 +21,23 @@ export default function App() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingChar, setEditingChar] = useState<Character | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [notifStatus, setNotifStatus] = useState<'default' | 'granted' | 'denied'>('default');
 
-  // Push 알림 구독
+  // 알림 권한 상태 확인
   useEffect(() => {
-    subscribeToPush('companions-seongmin').catch(() => {});
+    if ('Notification' in window) {
+      setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
+    }
   }, []);
+
+  const handleEnableNotifications = async () => {
+    try {
+      await subscribeToPush('companions-seongmin');
+      setNotifStatus('granted');
+    } catch {
+      setNotifStatus('denied');
+    }
+  };
 
   // Load characters from Supabase on mount
   useEffect(() => {
@@ -123,7 +135,20 @@ export default function App() {
   const activeMessages = activeId ? (messagesByChar[activeId] ?? []) : [];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+      {/* 알림 허용 배너 */}
+      {notifStatus === 'default' && (
+        <div className="flex items-center justify-between px-4 py-2 bg-indigo-600 text-white text-sm shrink-0">
+          <span>브리핑 알림을 받으려면 알림을 허용해줘</span>
+          <button
+            onClick={handleEnableNotifications}
+            className="ml-4 px-3 py-1 bg-white text-indigo-600 rounded-lg font-medium text-xs"
+          >
+            알림 허용
+          </button>
+        </div>
+      )}
+    <div className="flex flex-1 overflow-hidden">
       {/* Mobile sidebar toggle */}
       <button
         onClick={() => setSidebarOpen((o) => !o)}
@@ -185,6 +210,7 @@ export default function App() {
           onClose={() => setEditorOpen(false)}
         />
       )}
+    </div>
     </div>
   );
 }
