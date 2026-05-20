@@ -23,9 +23,18 @@ export interface Message {
 export interface CharacterContext {
   id?: number;
   character_id: string;
-  life_context: string | null;
+  relationship_summary: string | null;
   memorable_moments: string | null;
   mood: string | null;
+  updated_at?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  personality: string | null;
+  investment_style: string | null;
+  lifestyle: string | null;
   updated_at?: string;
 }
 

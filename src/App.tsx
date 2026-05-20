@@ -11,6 +11,7 @@ import { subscribeToPush } from './services/pushSubscription';
 import Sidebar from './components/Sidebar';
 import ChatView from './components/ChatView';
 import CharacterEditor from './components/CharacterEditor';
+import UserProfileEditor from './components/UserProfileEditor';
 import EmptyState from './components/EmptyState';
 
 export default function App() {
@@ -20,6 +21,7 @@ export default function App() {
   const [loadingChars, setLoadingChars] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingChar, setEditingChar] = useState<Character | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifStatus, setNotifStatus] = useState<'default' | 'granted' | 'denied'>('default');
   const [notifError, setNotifError] = useState<string | null>(null);
@@ -198,6 +200,7 @@ export default function App() {
           activeId={activeId}
           onSelect={handleSelectChar}
           onAddCharacter={handleOpenAdd}
+          onOpenProfile={() => setProfileOpen(true)}
         />
       </div>
 
@@ -228,6 +231,11 @@ export default function App() {
           onDelete={handleDeleteCharacter}
           onClose={() => setEditorOpen(false)}
         />
+      )}
+
+      {/* User profile editor modal */}
+      {profileOpen && (
+        <UserProfileEditor onClose={() => setProfileOpen(false)} />
       )}
     </div>
     </div>

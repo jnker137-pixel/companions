@@ -5,6 +5,7 @@ interface SidebarProps {
   activeId: string | null;
   onSelect: (id: string) => void;
   onAddCharacter: () => void;
+  onOpenProfile: () => void;
 }
 
 function getInitials(name: string): string {
@@ -21,6 +22,7 @@ export default function Sidebar({
   activeId,
   onSelect,
   onAddCharacter,
+  onOpenProfile,
 }: SidebarProps) {
   return (
     <aside className="flex flex-col w-64 min-w-[64px] max-w-xs bg-gray-900 text-white h-screen">
@@ -88,8 +90,8 @@ export default function Sidebar({
         )}
       </nav>
 
-      {/* Add button */}
-      <div className="p-3 border-t border-gray-700">
+      {/* Bottom buttons */}
+      <div className="p-3 border-t border-gray-700 space-y-2">
         <button
           onClick={onAddCharacter}
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-sm font-medium transition-all"
@@ -98,6 +100,15 @@ export default function Sidebar({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           캐릭터 추가
+        </button>
+        <button
+          onClick={onOpenProfile}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-200 text-sm transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          내 프로필
         </button>
       </div>
     </aside>

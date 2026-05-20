@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Character, Message, CharacterContext } from '../types';
+import type { Character, Message, CharacterContext, UserProfile } from '../types';
 
 const SUPABASE_URL = 'https://uxiymaeobmleshekvqvl.supabase.co';
 const SUPABASE_ANON_KEY =
@@ -89,5 +89,24 @@ export async function upsertContext(ctx: CharacterContext): Promise<void> {
   const { error } = await supabase
     .from('character_context')
     .upsert({ ...ctx, updated_at: new Date().toISOString() }, { onConflict: 'character_id' });
+  if (error) throw error;
+}
+
+// ── User Profile (공통 유저 정보) ─────────────────────────────────────────────
+
+export async function fetchUserProfile(): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from('user_profile')
+    .select('*')
+    .eq('id', 'seongmin')
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function upsertUserProfile(profile: UserProfile): Promise<void> {
+  const { error } = await supabase
+    .from('user_profile')
+    .upsert({ ...profile, updated_at: new Date().toISOString() }, { onConflict: 'id' });
   if (error) throw error;
 }
