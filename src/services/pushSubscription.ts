@@ -2,15 +2,6 @@ const VAPID_PUBLIC_KEY = 'BKMCVDQ4x3TccDE1Oi3MfrY-4i2fGWA0mPrdqf0DgaLX6movUljKBl
 const SUPABASE_URL = 'https://uxiymaeobmleshekvqvl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4aXltYWVvYm1sZXNoZWt2cXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NTQ3OTYsImV4cCI6MjA4NzEzMDc5Nn0.cAltB-U4B7-38M065Cn30uwoPu-wzh62IkuDUT4rrAQ';
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const output = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; i++) output[i] = rawData.charCodeAt(i);
-  return output;
-}
-
 export async function subscribeToPush(clientId: string): Promise<string> {
   if (!('serviceWorker' in navigator)) throw new Error('serviceWorker 미지원');
   if (!('PushManager' in window)) throw new Error('PushManager 미지원');
@@ -23,9 +14,10 @@ export async function subscribeToPush(clientId: string): Promise<string> {
 
   let subscription = await registration.pushManager.getSubscription();
   if (!subscription) {
+    // applicationServerKey는 base64url 문자열 그대로 사용 (Uint8Array 변환 시 TS 타입 충돌)
     subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      applicationServerKey: VAPID_PUBLIC_KEY,
     });
   }
 
